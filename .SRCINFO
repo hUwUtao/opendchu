@@ -5,7 +5,6 @@ pkgbase = insyde-dchu-dkms
 	url = https://github.com/stdpi/opendchu
 	arch = x86_64
 	license = 0BSD
-	makedepends = linux-headers
 	depends = dkms
 	provides = insyde-dchu
 	conflicts = insyde-dchu

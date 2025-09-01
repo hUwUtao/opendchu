@@ -6,7 +6,6 @@ arch=('x86_64')
 url='https://github.com/stdpi/opendchu'
 license=('0BSD')
 depends=('dkms')
-makedepends=('linux-headers')
 provides=('insyde-dchu')
 conflicts=('insyde-dchu')
 options=('!strip')
