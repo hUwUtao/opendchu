@@ -31,6 +31,29 @@ Tested on `Gigabyte U4 UD`, which on latest upstream doesn't have suitable fan d
 - Or explicitly:
   - `make modules MODULES="dchu_core dchu_hwmon dchu_leds"`
 
+#### Using custom kernel headers (manual build)
+- Point `KDIR` at your kernel build tree (must have `make modules_prepare` run):
+  - `make modules_all KDIR=/path/to/linux/build`
+  - Example: if you built with `O=/path/to/build`, use that `O` dir as `KDIR`.
+
+### DKMS (Arch Linux)
+- Package build:
+  - `makepkg -f` (produces `insyde-dchu-dkms-<ver>-x86_64.pkg.tar.zst`)
+- Install the DKMS package:
+  - `sudo pacman -U insyde-dchu-dkms-*.pkg.tar.zst`
+- DKMS will auto-build for installed kernels and on updates.
+- Manual DKMS (optional):
+  - `sudo dkms add -m insyde-dchu-dkms -v 0.1.0`
+  - `sudo dkms build -m insyde-dchu-dkms -v 0.1.0`
+  - `sudo dkms install -m insyde-dchu-dkms -v 0.1.0`
+
+#### DKMS with custom kernel headers
+- Preferred: install/symlink your kernel headers to `/lib/modules/<release>/build`, then:
+  - `sudo dkms build -m insyde-dchu-dkms -v 0.1.0 -k <release>`
+- Advanced (enabled in dkms.conf): pass `KDIR` to override the kernel dir DKMS uses:
+  - `sudo KDIR=/path/to/linux/build dkms build -m insyde-dchu-dkms -v 0.1.0 -k <release>`
+  - Ensure `<release>` matches the kernel built in `KDIR` (ABI match).
+
 ### Load / Unload
 - Load in order (hwmon params optional):
   - `sudo insmod ./dchu_core.ko`

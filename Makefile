@@ -6,7 +6,12 @@ LDFLAGS  ?=
 
 # Kernel build dir (for module builds)
 UNAME_R  := $(shell uname -r)
+# Prefer DKMS-provided KVER when present, otherwise fallback to running kernel
+ifeq ($(origin KVER), undefined)
 KDIR     ?= /lib/modules/$(UNAME_R)/build
+else
+KDIR     ?= /lib/modules/$(KVER)/build
+endif
 PWD      := $(shell pwd)
 
 # If the running kernel was built with clang/lld, mirror that toolchain
