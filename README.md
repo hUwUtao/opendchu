@@ -50,7 +50,10 @@ Tested on `Gigabyte U4 UD`, which on latest upstream doesn't have suitable fan d
   - Fans (RPM): `fan1_input` (CPU), `fan2_input` (GPU1), `fan3_input` (GPU2)
   - PWM (0–255): `pwm1`, `pwm2`, `pwm3` (scaled from 0–100 duty; clamped ≤255)
   - Temps (m°C): `temp1_input` (CPU remote), `temp2_input` (GPU1), `temp3_input` (GPU2)
-  - Debug: `fan_buf` (hex dump of FAN package 12)
+- Debug: `fan_buf` (hex dump of FAN package 12)
+- Fan controls:
+  - `fan_mode` (RW): accepts numeric (0/1/3/5/6/7) or names (auto, max, silent, maxq, custom, turbo). Write invokes `_DSM` command `121` with a 4-byte payload: `payload[0]=mode`, `payload[1]=0`, `payload[2]=0`, `payload[3]=1` (subcommand).
+  - `fan_mode_name` (RO): the name of the last set mode.
 - Parse table (FAN package id = 12):
   - CPU RPM: `(buf[2] << 8) | buf[3]`
   - GPU1 RPM: `(buf[4] << 8) | buf[5]`
@@ -63,9 +66,9 @@ Tested on `Gigabyte U4 UD`, which on latest upstream doesn't have suitable fan d
   - GPU2 remote: `buf[24]` (°C)
 
 ### LEDs Child (Keyboard backlight)
-- LED: `/sys/class/leds/dchu::kbd_backlight` (max_brightness = 5)
+- LED: `/sys/class/leds/dchu::kbd_backlight` (max\_brightness = 5)
 - Read: `_DSM` function `61` returns an integer; low byte is brightness `0..5`
-- Write: `_DSM` function `31` with 4-byte payload, `payload[0]=level (0..5)`, others `0`
+- Write: `_DSM` function `39` with 4-byte payload, `payload[0]=level (0..5)`, others `0`
 - Helpers on platform device (debug):
   - `.../dchu-leds.0/raw_status` → prints `_DSM 61` result or error
-  - `.../dchu-leds.0/raw_set` → write a number to invoke `_DSM 31`
+  - `.../dchu-leds.0/raw_set` → write a number to invoke `_DSM 39`

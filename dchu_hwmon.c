@@ -14,6 +14,7 @@
 struct dchu_hwmon_ctx {
     struct dchu *core;
     struct device *hwdev;
+    u8 fan_mode; /* last set mode */
 };
 
 /* Module parameters to handle inverse tach period vs RPM */
@@ -242,6 +243,79 @@ static ssize_t temp3_input_show(struct device *dev,
 }
 static DEVICE_ATTR_RO(temp3_input);
 
+/* Fan mode high (aka turbo): write 0/1 via _DSM command 121 with 1-byte payload */
+/* fan_mode_high removed */
+
+static const char *dchu_mode_name(u8 mode)
+{
+    switch (mode) {
+    case 0: return "auto";
+    case 1: return "max";
+    case 3: return "silent";
+    case 5: return "maxq";
+    case 6: return "custom";
+    case 7: return "turbo";
+    default: return "unknown";
+    }
+}
+
+static int dchu_set_fan_mode(struct dchu_hwmon_ctx *ctx, u8 mode)
+{
+    u8 payload[4] = {0};
+    payload[0] = mode; /* data */
+    payload[3] = 1;    /* subcommand */
+    return dchu_call_dsm(ctx->core, 121, payload, sizeof(payload), NULL);
+}
+
+static ssize_t fan_mode_show(struct device *dev,
+                             struct device_attribute *attr, char *buf)
+{
+    struct dchu_hwmon_ctx *ctx = dev_get_drvdata(dev->parent);
+    return sysfs_emit(buf, "%u\n", ctx->fan_mode);
+}
+
+static ssize_t fan_mode_store(struct device *dev,
+                              struct device_attribute *attr,
+                              const char *buf, size_t count)
+{
+    struct dchu_hwmon_ctx *ctx = dev_get_drvdata(dev->parent);
+    unsigned long v; int ret; u8 mode;
+
+    /* numeric? */
+    if (!kstrtoul(buf, 0, &v)) {
+        mode = (u8)v;
+    } else {
+        /* else expect a known name (lowercase) */
+        if (sysfs_streq(buf, "auto")) mode = 0;
+        else if (sysfs_streq(buf, "max")) mode = 1;
+        else if (sysfs_streq(buf, "silent")) mode = 3;
+        else if (sysfs_streq(buf, "maxq")) mode = 5;
+        else if (sysfs_streq(buf, "custom")) mode = 6;
+        else if (sysfs_streq(buf, "turbo")) mode = 7;
+        else return -EINVAL;
+    }
+
+    switch (mode) {
+    case 0: case 1: case 3: case 5: case 6: case 7: break;
+    default: return -ERANGE;
+    }
+
+    ret = dchu_set_fan_mode(ctx, mode);
+    if (ret)
+        return ret;
+    ctx->fan_mode = mode;
+    return count;
+}
+static DEVICE_ATTR_RW(fan_mode);
+
+static ssize_t fan_mode_name_show(struct device *dev,
+                                  struct device_attribute *attr, char *buf)
+{
+    struct dchu_hwmon_ctx *ctx = dev_get_drvdata(dev->parent);
+    return sysfs_emit(buf, "%s\n", dchu_mode_name(ctx->fan_mode));
+}
+static DEVICE_ATTR_RO(fan_mode_name);
+
 static struct attribute *dchu_attrs[] = {
     &dev_attr_fan1_input.attr,
     &dev_attr_fan2_input.attr,
@@ -253,6 +327,8 @@ static struct attribute *dchu_attrs[] = {
     &dev_attr_temp1_input.attr,
     &dev_attr_temp2_input.attr,
     &dev_attr_temp3_input.attr,
+    &dev_attr_fan_mode.attr,
+    &dev_attr_fan_mode_name.attr,
     NULL,
 };
 
