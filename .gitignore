@@ -1,0 +1,24 @@
+# Kernel module build artifacts
+*.o
+*.ko
+*.mod
+*.mod.c
+*.mod.o
+*.symvers
+*.order
+*.cmd
+.tmp_versions/
+
+# Arch packaging outputs
+pkg/
+src/
+*.pkg.tar.*
+
+# Editor/OS artifacts
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Misc build outputs
+*.out
