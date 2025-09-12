@@ -4,8 +4,9 @@
 > Deprecation in near future, in favor of [Tuxedo Computers Drivers](https://github.com/tuxedocomputers/tuxedo-drivers) and [Clevo driver patch+main tuxedo fork](https://github.com/nick42d/clevo-drivers?tab=readme-ov-file)
 > What are still missing on those:
 > - Battery
-> - Fan state and PWM
-> Contrib soon!
+> - Fan readings and state
+> 
+> Will contrib soon!
 
 DCHU is a kernel-space devices that integrates:
 - dchu\_core: Contact with ACPI device `CLV0001` aka DCHU
