@@ -1,6 +1,6 @@
 ## Insyde DCHU Kernel driver
 
-> [!WARN]
+> [!NOTE]
 > Deprecation in near future, in favor of [Tuxedo Computers Drivers](https://github.com/tuxedocomputers/tuxedo-drivers) and [Clevo driver patch+main tuxedo fork](https://github.com/nick42d/clevo-drivers?tab=readme-ov-file)
 > What are still missing on those:
 > - Battery
